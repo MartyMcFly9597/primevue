@@ -2,6 +2,7 @@ import alias from '@rollup/plugin-alias';
 import { babel } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import logicalToPhysical from '@scripts/css-logical-to-physical.js';
 import postcss from 'rollup-plugin-postcss';
 import vue from 'rollup-plugin-vue';
 
@@ -24,6 +25,7 @@ const EXTERNALS = [...GLOBAL_EXTERNALS, ...INLINE_EXTERNALS];
 
 // alias
 const ALIAS_ENTRIES = [
+    { find: '@scripts/', replacement: path.resolve(__dirname, '../../../scripts/') },
     {
         find: /^primevue\/(.*)$/,
         replacement: path.resolve(__dirname, './src/$1'),
@@ -79,7 +81,8 @@ const ALIAS_PLUGIN_OPTIONS = {
 };
 
 const POSTCSS_PLUGIN_OPTIONS = {
-    sourceMap: false
+    sourceMap: false,
+    plugins: [logicalToPhysical()]
 };
 
 const TERSER_PLUGIN_OPTIONS = {

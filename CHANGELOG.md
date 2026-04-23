@@ -1,6 +1,11 @@
 # Changelog
 
-## [4.5.5](https://github.com/primefaces/primevue/tree/4.5.5) (2026-04-08)
+
+## [Unreleased]
+
+**Implemented New Features and Enhancements:**
+
+- Build: Added a CSS logical-to-physical property transformer for legacy browser support ([#7272](https://github.com/primefaces/primevue/issues/7272)). Logical properties like `margin-inline-start` are now automatically converted to physical properties like `margin-left` during build.
 
 [Full Changelog](https://github.com/primefaces/primevue/compare/4.5.4...4.5.5)
 
