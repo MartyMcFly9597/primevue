@@ -1,3 +1,6 @@
+const postcss = require('postcss');
+const logicalToPhysical = require('../../../scripts/css-logical-to-physical');
+
 test('does not duplicate physical properties', async () => {
     const input = `
         .foo {
