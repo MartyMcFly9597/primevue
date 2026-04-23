@@ -95,6 +95,7 @@ module.exports = (opts = {}) => {
     const direction = opts.direction === 'rtl' ? 'rtl' : 'ltr';
     const customMap = opts.customMap || {};
     const warnUnmapped = opts.warnUnmapped !== false;
+
     return {
         postcssPlugin: 'css-logical-to-physical',
         Declaration(decl, { result }) {
@@ -102,23 +103,28 @@ module.exports = (opts = {}) => {
             const map = { ...logicalToPhysicalMap[direction], ...customMap };
             // Property mapping with deduplication
             const physicalProp = map[decl.prop];
+
             if (physicalProp) {
                 // Only add if not already present
                 const rule = decl.parent;
                 const alreadyExists = rule.some && rule.some((d) => d.prop === physicalProp && d.value === decl.value);
+
                 if (!alreadyExists) {
                     decl.cloneBefore({ prop: physicalProp });
                 }
             } else if (warnUnmapped && !logicalValueProps.includes(decl.prop)) {
                 result.warn(`Unmapped logical property: ${decl.prop}`, { node: decl });
             }
+
             // Value mapping
             if (logicalValueProps.includes(decl.prop)) {
                 const valueMap = logicalValueMap[direction][decl.prop];
+
                 if (valueMap && valueMap[decl.value]) {
                     // Only add if not already present
                     const rule = decl.parent;
                     const alreadyExists = rule.some && rule.some((d) => d.prop === decl.prop && d.value === valueMap[decl.value]);
+
                     if (!alreadyExists) {
                         decl.cloneBefore({ value: valueMap[decl.value] });
                     }

@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## [Unreleased]
 
 **Implemented New Features and Enhancements:**
