@@ -25,7 +25,6 @@ const EXTERNALS = [...GLOBAL_EXTERNALS, ...INLINE_EXTERNALS];
 
 // alias
 const ALIAS_ENTRIES = [
-    { find: '@scripts/', replacement: path.resolve(__dirname, '../../../scripts/') },
     {
         find: /^primevue\/(.*)$/,
         replacement: path.resolve(__dirname, './src/$1'),

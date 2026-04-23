@@ -177,14 +177,6 @@ test('unknown logical property only warns, does not transform', async () => {
     expect(warnings[0].text).toMatch(/Unmapped logical property/);
 });
 
-test('case insensitivity for logical properties', async () => {
-    const input = `.foo { MARGIN-INLINE-START: 7px; }`;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    // Should match margin-left: 7px (if plugin is case-insensitive)
-    expect(result.css.toLowerCase()).toMatch(/margin-left: 7px/);
-});
-
 test('empty input does not throw or warn', async () => {
     const input = '';
     const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });

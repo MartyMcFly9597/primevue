@@ -95,6 +95,7 @@ module.exports = (opts = {}) => {
     const direction = opts.direction === 'rtl' ? 'rtl' : 'ltr';
     const customMap = opts.customMap || {};
     const warnUnmapped = opts.warnUnmapped !== false;
+    const logicalPattern = /inline|block|start|end|logical/i;
 
     return {
         postcssPlugin: 'css-logical-to-physical',
@@ -112,7 +113,7 @@ module.exports = (opts = {}) => {
                 if (!alreadyExists) {
                     decl.cloneBefore({ prop: physicalProp });
                 }
-            } else if (warnUnmapped && !logicalValueProps.includes(decl.prop)) {
+            } else if (warnUnmapped && !logicalValueProps.includes(decl.prop) && logicalPattern.test(decl.prop)) {
                 result.warn(`Unmapped logical property: ${decl.prop}`, { node: decl });
             }
 
