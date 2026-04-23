@@ -1,6 +1,4 @@
 test('does not duplicate physical properties', async () => {
-    const postcss = require('postcss');
-    const logicalToPhysical = require('../../scripts/css-logical-to-physical');
     const input = `
         .foo {
             margin-inline-start: 10px;
@@ -8,37 +6,27 @@ test('does not duplicate physical properties', async () => {
         }
     `;
     const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
     // Only one margin-left should exist
     expect(result.css.match(/margin-left: 10px/g).length).toBe(1);
 });
 
 test('warns on unmapped logical property', async () => {
-    const postcss = require('postcss');
-    const logicalToPhysical = require('../../scripts/css-logical-to-physical');
     const input = `.foo { logical-unknown: 1px; }`;
-    let warning = null;
-    await postcss([logicalToPhysical()]).process(input, {
-        from: undefined,
-        // Capture warnings
-        result: {
-            warn: (msg, opts) => {
-                warning = msg;
-            }
-        }
-    });
-    expect(warning).toMatch(/Unmapped logical property/);
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+    const warnings = result.warnings();
+
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings[0].text).toMatch(/Unmapped logical property/);
 });
 
 test('supports custom mapping extension', async () => {
-    const postcss = require('postcss');
-    const logicalToPhysical = require('../../scripts/css-logical-to-physical');
     const input = `.foo { custom-logical: 123px; }`;
     const result = await postcss([logicalToPhysical({ customMap: { 'custom-logical': 'custom-physical' } })]).process(input, { from: undefined });
+
     expect(result.css).toMatch(/custom-physical: 123px/);
 });
 test('transforms logical properties to physical properties (RTL)', async () => {
-    const postcss = require('postcss');
-    const logicalToPhysical = require('../../scripts/css-logical-to-physical');
     const input = `
         .foo {
             margin-inline-start: 10px;
@@ -55,6 +43,7 @@ test('transforms logical properties to physical properties (RTL)', async () => {
         }
     `;
     const result = await postcss([logicalToPhysical({ direction: 'rtl' })]).process(input, { from: undefined });
+
     expect(result.css).toMatch(/margin-right: 10px/);
     expect(result.css).toMatch(/margin-left: 11px/);
     expect(result.css).toMatch(/padding-right: 12px/);
@@ -67,9 +56,8 @@ test('transforms logical properties to physical properties (RTL)', async () => {
     expect(result.css).toMatch(/clear: left/);
     expect(result.css).toMatch(/text-align: left/);
 });
+
 // Test for css-logical-to-physical PostCSS plugin
-const postcss = require('postcss');
-const logicalToPhysical = require('../../scripts/css-logical-to-physical');
 
 test('transforms logical properties to physical properties', async () => {
     const input = `
@@ -111,6 +99,7 @@ test('transforms logical properties to physical properties', async () => {
         }
     `;
     const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
     expect(result.css).toMatch(/margin-left: 10px/);
     expect(result.css).toMatch(/margin-right: 11px/);
     expect(result.css).toMatch(/margin-top: 12px/);
@@ -145,4 +134,93 @@ test('transforms logical properties to physical properties', async () => {
     expect(result.css).toMatch(/right: 14px/);
     expect(result.css).toMatch(/top: 15px/);
     expect(result.css).toMatch(/bottom: 16px/);
+});
+
+const postcss = require('postcss');
+const logicalToPhysical = require('../../../scripts/css-logical-to-physical');
+
+test('does not transform already-physical properties', async () => {
+    const input = `
+        .foo {
+            margin-left: 10px;
+            padding-top: 5px;
+        }
+    `;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toMatch(/margin-left: 10px/);
+    expect(result.css).toMatch(/padding-top: 5px/);
+    // Should not duplicate or alter physical properties
+    expect(result.css.match(/margin-left: 10px/g).length).toBe(1);
+    expect(result.css.match(/padding-top: 5px/g).length).toBe(1);
+});
+
+test('handles multiple selectors in one rule', async () => {
+    const input = `
+        .foo, .bar {
+            margin-inline-start: 8px;
+        }
+    `;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toMatch(/margin-left: 8px/);
+});
+
+test('unknown logical property only warns, does not transform', async () => {
+    const input = `.foo { logical-unknown: 2px; }`;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toMatch(/logical-unknown: 2px/);
+    const warnings = result.warnings();
+
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings[0].text).toMatch(/Unmapped logical property/);
+});
+
+test('case insensitivity for logical properties', async () => {
+    const input = `.foo { MARGIN-INLINE-START: 7px; }`;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    // Should match margin-left: 7px (if plugin is case-insensitive)
+    expect(result.css.toLowerCase()).toMatch(/margin-left: 7px/);
+});
+
+test('empty input does not throw or warn', async () => {
+    const input = '';
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toBe('');
+    expect(result.warnings().length).toBe(0);
+});
+
+test('transforms logical properties with !important', async () => {
+    const input = `.foo { margin-inline-start: 5px !important; }`;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toMatch(/margin-left: 5px !important/);
+});
+
+test('transforms logical properties inside media queries', async () => {
+    const input = `@media (max-width: 600px) {
+        .foo {
+            padding-inline-end: 3px;
+        }
+    }`;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    expect(result.css).toMatch(/padding-right: 3px/);
+});
+
+test('transforms logical properties in nested rules (if supported)', async () => {
+    const input = `
+        .foo {
+            & .bar {
+                margin-inline-end: 4px;
+            }
+        }
+    `;
+    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
+
+    // If using postcss-nested, this would be transformed; otherwise, this test may be skipped or adjusted
+    expect(result.css).toMatch(/margin-right: 4px/);
 });

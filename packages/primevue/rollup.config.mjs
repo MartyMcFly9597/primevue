@@ -2,9 +2,9 @@ import alias from '@rollup/plugin-alias';
 import { babel } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
-import logicalToPhysical from '@scripts/css-logical-to-physical.js';
 import postcss from 'rollup-plugin-postcss';
 import vue from 'rollup-plugin-vue';
+import logicalToPhysical from '../../../scripts/css-logical-to-physical.js';
 
 import fs from 'fs-extra';
 import path, { dirname } from 'path';

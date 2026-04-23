@@ -129,17 +129,3 @@ module.exports = (opts = {}) => {
 };
 
 module.exports.postcss = true;
-
-module.exports = () => {
-    return {
-        postcssPlugin: 'css-logical-to-physical',
-        Declaration(decl) {
-            const physicalProp = logicalToPhysicalMap[decl.prop];
-            if (physicalProp) {
-                decl.cloneBefore({ prop: physicalProp });
-            }
-        }
-    };
-};
-
-module.exports.postcss = true;
