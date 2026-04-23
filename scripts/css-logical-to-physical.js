@@ -91,6 +91,64 @@ const logicalValueMap = {
     }
 };
 
+// Helper to expand shorthand values (e.g., '1rem 2rem' => ["1rem", "2rem"])
+function expandShorthandValues(value) {
+    // Split by whitespace, but keep together if inside parentheses (e.g., calc)
+    // This is a simple split for now
+    return value.trim().split(/\s+/);
+}
+
+const shorthandHandlers = {
+    'margin-inline': (value, direction) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return direction === 'rtl' ? { 'margin-right': start, 'margin-left': end } : { 'margin-left': start, 'margin-right': end };
+    },
+    'margin-block': (value) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return { 'margin-top': start, 'margin-bottom': end };
+    },
+    'padding-inline': (value, direction) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return direction === 'rtl' ? { 'padding-right': start, 'padding-left': end } : { 'padding-left': start, 'padding-right': end };
+    },
+    'padding-block': (value) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return { 'padding-top': start, 'padding-bottom': end };
+    },
+    'border-inline': (value, direction) => {
+        return direction === 'rtl' ? { 'border-right': value, 'border-left': value } : { 'border-left': value, 'border-right': value };
+    },
+    'border-block': (value) => {
+        return { 'border-top': value, 'border-bottom': value };
+    },
+    'inset-inline': (value, direction) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return direction === 'rtl' ? { right: start, left: end } : { left: start, right: end };
+    },
+    'inset-block': (value) => {
+        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+
+        return { top: start, bottom: end };
+    },
+    inset: (value) => {
+        // CSS inset shorthand: top right bottom left
+        // 1 value: all sides, 2: top/bottom, right/left, 3: top, right/left, bottom, 4: top, right, bottom, left
+        const vals = expandShorthandValues(value);
+
+        if (vals.length === 1) return { top: vals[0], right: vals[0], bottom: vals[0], left: vals[0] };
+        if (vals.length === 2) return { top: vals[0], right: vals[1], bottom: vals[0], left: vals[1] };
+        if (vals.length === 3) return { top: vals[0], right: vals[1], bottom: vals[2], left: vals[1] };
+        if (vals.length === 4) return { top: vals[0], right: vals[1], bottom: vals[2], left: vals[3] };
+
+        return {};
+    }
+};
+
 module.exports = (opts = {}) => {
     const direction = opts.direction === 'rtl' ? 'rtl' : 'ltr';
     const customMap = opts.customMap || {};
@@ -105,7 +163,19 @@ module.exports = (opts = {}) => {
             // Property mapping with deduplication
             const physicalProp = map[decl.prop];
 
-            if (physicalProp) {
+            // Handle logical shorthands
+            if (shorthandHandlers[decl.prop]) {
+                const expanded = shorthandHandlers[decl.prop](decl.value, direction);
+                const rule = decl.parent;
+
+                for (const [prop, value] of Object.entries(expanded)) {
+                    const alreadyExists = rule.some && rule.some((d) => d.prop === prop && d.value === value);
+
+                    if (!alreadyExists) {
+                        decl.cloneBefore({ prop, value });
+                    }
+                }
+            } else if (physicalProp) {
                 // Only add if not already present
                 const rule = decl.parent;
                 const alreadyExists = rule.some && rule.some((d) => d.prop === physicalProp && d.value === decl.value);
