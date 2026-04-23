@@ -139,9 +139,6 @@ test('transforms logical properties to physical properties', async () => {
     expect(result.css).toMatch(/bottom: 16px/);
 });
 
-const postcss = require('postcss');
-const logicalToPhysical = require('../../../scripts/css-logical-to-physical');
-
 test('does not transform already-physical properties', async () => {
     const input = `
         .foo {
