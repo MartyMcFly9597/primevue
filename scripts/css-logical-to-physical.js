@@ -92,10 +92,34 @@ const logicalValueMap = {
 };
 
 // Helper to expand shorthand values (e.g., '1rem 2rem' => ["1rem", "2rem"])
+// Splits on whitespace, but not inside parentheses (e.g., calc(100% - 1rem) 2rem)
 function expandShorthandValues(value) {
-    // Split by whitespace, but keep together if inside parentheses (e.g., calc)
-    // This is a simple split for now
-    return value.trim().split(/\s+/);
+    const result = [];
+    let current = '';
+    let depth = 0;
+
+    for (let i = 0; i < value.length; i++) {
+        const char = value[i];
+
+        if (char === '(') {
+            depth++;
+            current += char;
+        } else if (char === ')') {
+            depth = Math.max(0, depth - 1);
+            current += char;
+        } else if (/\s/.test(char) && depth === 0) {
+            if (current) {
+                result.push(current);
+                current = '';
+            }
+        } else {
+            current += char;
+        }
+    }
+
+    if (current) result.push(current);
+
+    return result;
 }
 
 const shorthandHandlers = {
