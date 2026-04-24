@@ -81,8 +81,8 @@ Output CSS:
 
 ```css
 .foo {
-    margin-left: 10px;
     margin-inline-start: 10px;
+    margin-left: 10px;
 }
 ```
 

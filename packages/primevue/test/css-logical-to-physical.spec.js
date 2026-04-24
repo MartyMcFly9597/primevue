@@ -210,21 +210,6 @@ test('does not transform already-physical properties', async () => {
 
     expect(result.css).toMatch(/margin-left: 10px/);
     expect(result.css).toMatch(/padding-top: 5px/);
-    expect(result.css.match(/margin-left: 10px/g).length).toBe(1);
-    expect(result.css.match(/padding-top: 5px/g).length).toBe(1);
-});
-
-test('does not transform already-physical properties', async () => {
-    const input = `
-        .foo {
-            margin-left: 10px;
-            padding-top: 5px;
-        }
-    `;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/margin-left: 10px/);
-    expect(result.css).toMatch(/padding-top: 5px/);
     // Should not duplicate or alter physical properties
     expect(result.css.match(/margin-left: 10px/g).length).toBe(1);
     expect(result.css.match(/padding-top: 5px/g).length).toBe(1);
@@ -278,20 +263,3 @@ test('transforms logical properties inside media queries', async () => {
 
     expect(result.css).toMatch(/padding-right: 3px/);
 });
-
-// NOTE: This test is only relevant if your PostCSS pipeline includes a plugin like postcss-nested.
-// It is commented out by default because nested CSS is not supported in standard CSS or in the current build setup.
-// To enable, uncomment and ensure postcss-nested is configured.
-//
-// test('transforms logical properties in nested rules (if postcss-nested is enabled)', async () => {
-//     const input = `
-//         .foo {
-//             & .bar {
-//                 margin-inline-end: 4px;
-//             }
-//         }
-//     `;
-//     const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-//
-//     expect(result.css).toMatch(/margin-right: 4px/);
-// });
