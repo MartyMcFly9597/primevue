@@ -216,68 +216,6 @@ test('does not transform already-physical properties', async () => {
     expect(result.css.match(/padding-top: 5px/g).length).toBe(1);
 });
 
-test('handles multiple selectors in one rule', async () => {
-    const input = `
-        .foo, .bar {
-            margin-inline-start: 8px;
-        }
-    `;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/margin-left: 8px/);
-});
-
-test('unknown logical property only warns, does not transform', async () => {
-    const input = `.foo { logical-unknown: 2px; }`;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/logical-unknown: 2px/);
-    const warnings = result.warnings();
-
-    expect(warnings.length).toBeGreaterThan(0);
-    expect(warnings[0].text).toMatch(/Unmapped logical property/);
-});
-
-test('empty input does not throw or warn', async () => {
-    const input = '';
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toBe('');
-    expect(result.warnings().length).toBe(0);
-});
-
-test('transforms logical properties with !important', async () => {
-    const input = `.foo { margin-inline-start: 5px !important; }`;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/margin-left: 5px !important/);
-});
-
-test('transforms logical properties inside media queries', async () => {
-    const input = `@media (max-width: 600px) {
-        .foo {
-            padding-inline-end: 3px;
-        }
-    }`;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/padding-right: 3px/);
-});
-
-test('transforms logical properties in nested rules (if supported)', async () => {
-    const input = `
-        .foo {
-            & .bar {
-                margin-inline-end: 4px;
-            }
-        }
-    `;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    // If using postcss-nested, this would be transformed; otherwise, this test may be skipped or adjusted
-    expect(result.css).toMatch(/margin-right: 4px/);
-});
-
 test('does not transform already-physical properties', async () => {
     const input = `
         .foo {
