@@ -124,22 +124,26 @@ function expandShorthandValues(value) {
 
 const shorthandHandlers = {
     'margin-inline': (value, direction) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return direction === 'rtl' ? { 'margin-right': start, 'margin-left': end } : { 'margin-left': start, 'margin-right': end };
     },
     'margin-block': (value) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return { 'margin-top': start, 'margin-bottom': end };
     },
     'padding-inline': (value, direction) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return direction === 'rtl' ? { 'padding-right': start, 'padding-left': end } : { 'padding-left': start, 'padding-right': end };
     },
     'padding-block': (value) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return { 'padding-top': start, 'padding-bottom': end };
     },
@@ -150,12 +154,14 @@ const shorthandHandlers = {
         return { 'border-top': value, 'border-bottom': value };
     },
     'inset-inline': (value, direction) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return direction === 'rtl' ? { right: start, left: end } : { left: start, right: end };
     },
     'inset-block': (value) => {
-        const [start, end] = expandShorthandValues(value).length === 2 ? expandShorthandValues(value) : [value, value];
+        const vals = expandShorthandValues(value);
+        const [start, end] = vals.length === 2 ? vals : [value, value];
 
         return { top: start, bottom: end };
     },

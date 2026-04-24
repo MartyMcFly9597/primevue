@@ -1,6 +1,6 @@
 # CSS Logical Properties Transformer
 
-PrimeVue now includes a build-time transformer that converts CSS logical properties (e.g., `margin-inline-start`, `padding-block-end`) to their physical equivalents (e.g., `margin-left`, `padding-bottom`) for legacy browser support.
+PrimeVue now includes a build-time transformer that adds physical fallbacks for CSS logical properties (e.g., `margin-inline-start`, `padding-block-end`) by inserting the physical equivalents (e.g., `margin-left`, `padding-bottom`) before the logical properties for legacy browser support.
 
 ## How it works
 
@@ -35,12 +35,12 @@ Output CSS:
 
 ```css
 .foo {
-    margin-inline-start: 10px;
-    padding-block-end: 5px;
-    float: inline-end;
     margin-left: 10px;
     padding-bottom: 5px;
     float: right;
+    margin-inline-start: 10px;
+    padding-block-end: 5px;
+    float: inline-end;
 }
 ```
 
@@ -59,10 +59,10 @@ Output CSS:
 
 ```css
 .foo {
-    margin-inline-start: 10px;
-    float: inline-start;
     margin-right: 10px;
     float: right;
+    margin-inline-start: 10px;
+    float: inline-start;
 }
 ```
 
@@ -81,8 +81,8 @@ Output CSS:
 
 ```css
 .foo {
-    margin-inline-start: 10px;
     margin-left: 10px;
+    margin-inline-start: 10px;
 }
 ```
 

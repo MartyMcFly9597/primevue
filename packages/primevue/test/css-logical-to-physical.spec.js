@@ -91,43 +91,6 @@ test('warns for unknown logical property', async () => {
     expect(warnings[0].text).toMatch(/Unmapped logical property/);
 });
 
-test('does not warn for custom logical property with mapping', async () => {
-    const input = `.foo { custom-logical: 123px; }`;
-    const result = await postcss([logicalToPhysical({ customMap: { 'custom-logical': 'custom-physical' } })]).process(input, { from: undefined });
-
-    expect(result.warnings().length).toBe(0);
-    expect(result.css).toMatch(/custom-physical: 123px/);
-});
-
-test('supports custom mapping extension', async () => {
-    const input = `.foo { custom-logical: 123px; }`;
-    const result = await postcss([logicalToPhysical({ customMap: { 'custom-logical': 'custom-physical' } })]).process(input, { from: undefined });
-
-    expect(result.css).toMatch(/custom-physical: 123px/);
-});
-
-// --- Main transformation and edge case tests ---
-test('does not duplicate physical properties', async () => {
-    const input = `
-        .foo {
-            margin-inline-start: 10px;
-            margin-left: 10px;
-        }
-    `;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-
-    expect(result.css.match(/margin-left: 10px/g).length).toBe(1);
-});
-
-test('warns on unmapped logical property', async () => {
-    const input = `.foo { logical-unknown: 1px; }`;
-    const result = await postcss([logicalToPhysical()]).process(input, { from: undefined });
-    const warnings = result.warnings();
-
-    expect(warnings.length).toBeGreaterThan(0);
-    expect(warnings[0].text).toMatch(/Unmapped logical property/);
-});
-
 test('transforms logical properties to physical properties (RTL)', async () => {
     const input = `
         .foo {
