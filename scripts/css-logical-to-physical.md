@@ -68,6 +68,8 @@ Output CSS:
 
 ### Deduplication
 
+If both a logical property and its physical equivalent are present, the transformer does not add or move anything. The output CSS remains unchanged:
+
 Input CSS:
 
 ```css
